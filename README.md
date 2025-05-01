@@ -15,6 +15,7 @@ Colony_Analyzer_AI2.py
 
 
 <img width="572" alt="example" src="https://github.com/user-attachments/assets/739217d5-60bf-459b-a548-64d1ed42c316" />
+<img width="572" alt="example2" src="https://github.com/user-attachments/assets/4d8a9ec4-f1f7-4bad-9ebe-16ba7b83b074" />
 
 Installation:
 Have Python3, and the following libraries: Numpy, Pandas, Tkinter, Opencv, Transformers
@@ -23,7 +24,7 @@ Then change the paths in the python scripts so they call each other and the mode
 You run the GUI file, and then select .tif files in the dropdown.
 
 The following is an example of the output by the program:
-<img width="572" alt="example2" src="https://github.com/user-attachments/assets/4d8a9ec4-f1f7-4bad-9ebe-16ba7b83b074" />![Group_analysis_results3](https://github.com/user-attachments/assets/cd5feeca-e5a1-40db-afbc-6f53d5f71f71)
+![Group_analysis_results3](https://github.com/user-attachments/assets/cd5feeca-e5a1-40db-afbc-6f53d5f71f71)
 
 [Group_analysis_results3.xlsx](https://github.com/user-attachments/files/20004750/Group_analysis_results3.xlsx)
 
