@@ -25,6 +25,9 @@ Colony_Analyzer_AI2.py
 Installation:
 Have Python3, and the following libraries: Numpy, Pandas, Tkinter, Opencv, Transformers, PIL, matplotlib. NVIDIA's CUDA is recommended for performance but not strictly necessary for usage.
 Download the three python files above and the model itself.
+
+https://huggingface.co/ReyaLabColumbia/Segformer_Colony_Counter
+
 Then change the paths in the python scripts so they call each other and the model.
 
 You run the GUI file, and then select .tif files in the dropdown.
