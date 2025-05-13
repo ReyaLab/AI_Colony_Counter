@@ -120,9 +120,13 @@ def on_entry_change(*args):
             pass
     else:
         try:
+            global checkbox_var
+            global checkbox_all
+            global dropdown
+
             file_list = os.listdir(entry_path.get())
             file_list = [x for x in file_list if ((x[-4::]==".tif") or (x[-4::]==".tiff"))]
-            if len(file_list) == 0:
+            if len(file_list) == 0 and len(find_directories(entry_path.get()))==0:
                 label_hidden.config(text="There are no .tif files in that folder.")
                 try:
                     file_chosen.set("")
@@ -131,15 +135,14 @@ def on_entry_change(*args):
                 return(0)
             else:
                 label_hidden.config(text="")
+            if len(file_list) == 0:
+                file_list = [""]
             label_drop = tk.Label(root, text="Choose file:")
             label_drop.grid(row=4, column=0, padx=10, pady=5, sticky="w")
             frame = tk.Frame(root)
-            global dropdown
             dropdown = tk.OptionMenu(frame, file_chosen, *file_list) 
             dropdown.pack(side="left", padx=5)
-            global checkbox_var
             checkbox_var = tk.IntVar()
-            global checkbox_all
             checkbox_all= tk.Checkbutton(frame, text='Analyze group',variable=checkbox_var, onvalue=True, offvalue=False, command=checkbox_change)
             checkbox_all.pack(side="right", padx=5)
             frame.grid(row=4, column=1, padx=5, pady=5)
@@ -240,7 +243,7 @@ def click_conf():
     global file_list
     if (not entry_size_min.get().isnumeric()) or (entry_circularity.get()==''):
         label_hidden.config(text="Please fix input.")
-    elif ((file_chosen.get() in file_list) or (checkbox_var.get())) and (len(file_list)>0) and (file_list != ['']) and (int(entry_size_min.get())>=0 or float(entry_circularity.get())>=0):
+    elif ((file_chosen.get() in file_list) or (checkbox_var.get())) and (len(file_list)>0) and ((file_list != ['']) or multiple_groups.get()) and (int(entry_size_min.get())>=0 or float(entry_circularity.get())>=0):
         if multiple_groups.get() == True:
             directories = find_directories(entry_path.get())
             if len(directories) < 1:
