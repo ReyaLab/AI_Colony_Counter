@@ -1,4 +1,4 @@
-colony area cutoff in pixels: 20
+colony area cutoff in pixels: 1000
 circularity cutoff: .25
 path: /home/reya/Desktop/AI_General_Counter/in_progress_code/
 include necrotic areas: True
