@@ -242,7 +242,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
     sys.path.append(path)
     label_hidden.config(text="Initiated analysis.")
     if do_all == False:
-        import General_Analyzer_AI as MA
+        import Colony_analyzer_AI as MA
         from PIL import Image, ImageTk
         import cv2
         img = MA.main([path, filn, params[0], params[1]])
@@ -262,7 +262,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         labelimg.photo = img
         labelimg.grid(row=6, column=1)
     elif (do_all == True) and (group_analysis.get() == True):
-        import General_Analyzer_Zstack as MA
+        import Colony_analyzer_Zstack as MA
         from PIL import Image, ImageTk
         import cv2
         img = MA.main([path, file_list, params[0], params[1]])
@@ -282,7 +282,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         labelimg.photo = img
         labelimg.grid(row=6, column=1)
     else:
-        import General_Analyzer_AI as MA
+        import Colony_analyzer_AI as MA
         from PIL import Image, ImageTk
         import cv2
         for x in file_list:
