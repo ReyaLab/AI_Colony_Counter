@@ -217,7 +217,6 @@ script_path = '/'.join(script_path)
 script_path = script_path+'/'
 config = read_config(script_path)
 entry_path_txt = tk.StringVar(value=config[2])
-del script_path
 entry_path = tk.Entry(root, width=30, textvariable=entry_path_txt)
 entry_path.grid(row=3, column=1, padx=10, pady=5)
 entry_path_txt.trace_add("write", on_entry_change)
@@ -245,7 +244,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         import Colony_analyzer_AI as MA
         from PIL import Image, ImageTk
         import cv2
-        img = MA.main([path, filn, params[0], params[1]])
+        img = MA.main([path, filn, params[0], params[1], script_path])
         cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         del img
         # Convert numpy array to PIL Image
@@ -265,7 +264,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         import Colony_analyzer_Zstack as MA
         from PIL import Image, ImageTk
         import cv2
-        img = MA.main([path, file_list, params[0], params[1]])
+        img = MA.main([path, file_list, params[0], params[1], script_path])
         cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         del img
         # Convert numpy array to PIL Image
@@ -286,7 +285,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         from PIL import Image, ImageTk
         import cv2
         for x in file_list:
-            img = MA.main([path, x, params[0], params[1]])
+            img = MA.main([path, x, params[0], params[1], script_path])
             cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             del img
             # Convert numpy array to PIL Image

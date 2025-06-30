@@ -171,7 +171,7 @@ def contours_overlap_using_mask(contour1, contour2, image_shape=(1536, 2048)):
     
     return np.any(overlap)
 
-def analyze_colonies(mask, size_cutoff, circ_cutoff):
+def analyze_colonies(mask, size_cutoff, circ_cutoff, img):
     colonies,areas = find_colonies(mask, size_cutoff, circ_cutoff)
     necrosis = find_necrosis(mask)
     
@@ -181,7 +181,10 @@ def analyze_colonies(mask, size_cutoff, circ_cutoff):
         colony = colonies[x]
         colony_area = areas[x]
         centroid = compute_centroid(colony)
-
+        
+        mask = np.zeros(img.shape, np.uint8)
+        cv2.drawContours(mask, [colony], -1, 255, cv2.FILLED)
+        pix = img[mask == 255]
         # Check if any necrosis contour is inside the colony
         necrosis_area = 0
         nec_list =[]
@@ -194,11 +197,12 @@ def analyze_colonies(mask, size_cutoff, circ_cutoff):
 
         data.append({
             "colony_area": colony_area,
-            "necrosis_area": necrosis_area,
+            "necrotic_area": necrosis_area,
             "centroid": centroid,
-            "percent_necrosis": necrosis_area/colony_area,
+            "percent_necrotic": necrosis_area/colony_area,
             "contour": colony,
-            "nec_contours": nec_list
+            "nec_contours": nec_list,
+            'mean_pixel_value':np.mean(pix)
         })
 
     # Convert results to a DataFrame
@@ -272,7 +276,7 @@ def main(args):
     colonies = {}
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
-    model = SegformerForSemanticSegmentation.from_pretrained(path+"General_Purpose_Colony_ImagerV1")  # Adjust path
+    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"General_Purpose_Colony_ImagerV1")  # Adjust path
     model.to(device)
     model.eval()  # Set to evaluation mode
     for x in files:
@@ -282,7 +286,7 @@ def main(args):
             cv2.imwrite(img_map[z], mask)
         del mask,z
         p = stitch(img_map)
-        frame = analyze_colonies(p, min_size, min_circ)
+        frame = analyze_colonies(p, min_size, min_circ, cv2.imread(path + x))
         frame["source"] = x
         frame["exclude"] = False
         if isinstance(colonies, dict):
@@ -373,16 +377,17 @@ def main(args):
     img = cv2.copyMakeBorder(img,top=10, bottom=0,left=10,right=0, borderType=cv2.BORDER_CONSTANT,  value=[255, 255, 255]) 
     
     colonies.insert(loc=0, column="Colony Number", value=[str(x) for x in range(1, len(colonies)+1)])
-    total_area_dark = sum(colonies['necrosis_area'])
+    total_area_dark = sum(colonies['necrotic_area'])
     total_area_light = sum(colonies['colony_area'])
     ratio = total_area_dark/(abs(total_area_light)+1)
     radii = [np.sqrt(x/3.1415) for x in list(colonies['colony_area'])]
     volumes = [4.189*(x**3) for x in radii]
     colonies['Colony volume'] = volumes
     del radii, volumes
-
-    colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio, None, sum(colonies['Colony volume'])]
-    colonies = colonies[["Colony Number", 'Colony volume', "colony_area", "centroid", "necrotic_area","percent_necrotic"]]
+    meanpix = sum(colonies['mean_pixel_value'] * colonies['colony_area'])/total_area_light
+    colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio, None, meanpix, sum(colonies['Colony volume'])]
+    del meanpix
+    colonies = colonies[["Colony Number", 'Colony volume', "colony_area", 'mean_pixel_value', "centroid", "necrotic_area","percent_necrotic", "source"]]
     Parameters = pd.DataFrame({"Minimum colony size in pixels":[min_size], "Minimum colony circularity":[min_circ]})
     with pd.ExcelWriter(path+"Group_analysis_results.xlsx") as writer:
         colonies.to_excel(writer, sheet_name="Colony data", index=False)

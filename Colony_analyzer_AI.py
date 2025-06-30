@@ -171,7 +171,7 @@ def contours_overlap_using_mask(contour1, contour2, image_shape=(1536, 2048)):
     
     return np.any(overlap)
 
-def analyze_colonies(mask, size_cutoff, circ_cutoff):
+def analyze_colonies(mask, size_cutoff, circ_cutoff, img):
     colonies = find_colonies(mask, size_cutoff, circ_cutoff)
     necrosis = find_necrosis(mask)
     
@@ -182,7 +182,9 @@ def analyze_colonies(mask, size_cutoff, circ_cutoff):
         centroid = compute_centroid(colony)
         if colony_area <= 50:
             continue
-        
+        mask = np.zeros(img.shape, np.uint8)
+        cv2.drawContours(mask, [colony], -1, 255, cv2.FILLED)
+        pix = img[mask == 255]
         # Check if any necrosis contour is inside the colony
         necrosis_area = 0
         nec_list =[]
@@ -199,64 +201,13 @@ def analyze_colonies(mask, size_cutoff, circ_cutoff):
             "centroid": centroid,
             "percent_necrotic": necrosis_area/colony_area,
             "contour": colony,
-            "nec_contours": nec_list
+            "nec_contours": nec_list,
+            'mean_pixel_value':np.mean(pix)
         })
 
     # Convert results to a DataFrame
     df = pd.DataFrame(data)
     df.index = range(1,len(df.index)+1)
-    return(df)
-
-
-def contour_overlap(contour1, contour2, centroid1, centroid2, area1, area2, centroid_thresh=25, area_thresh = 85, img_shape = (1536, 2048)):
-    """
-    Determines the overlap between two contours.
-    Returns:
-        0: No overlap
-        1: Overlap but does not meet strict conditions
-        2: Overlap >= 80% of the larger contour and centroids are close
-    """
-    # Create blank images
-    img1 = np.zeros(img_shape, dtype=np.uint8)
-    img2 = np.zeros(img_shape, dtype=np.uint8)
-    
-    # Draw filled contours
-    cv2.drawContours(img1, [contour1], -1, 255, thickness=cv2.FILLED)
-    cv2.drawContours(img2, [contour2], -1, 255, thickness=cv2.FILLED)
-    
-    # Compute overlap
-    intersection = cv2.bitwise_and(img1, img2)
-    intersection_area = np.count_nonzero(intersection)
-    
-    if intersection_area == 0:
-        return 0  # No overlap
-    
-    # Compute centroid distance
-    centroid_distance = float(np.sqrt(abs(centroid1[0]-centroid2[0])**2 + abs(centroid1[1]-centroid2[1])**2))
-    # Check percentage overlap relative to the larger contour
-    overlap_ratio = intersection_area/max(area1, area2)
-    
-    if overlap_ratio >= area_thresh and centroid_distance <= centroid_thresh:
-        if area1 > area2:
-            return(2)
-        else:
-            return(3)
-    else:
-        return 1  # Some overlap but not meeting strict criteria
-    
-def compare_frames(frame1, frame2):
-    for i in range(1, len(frame1)+1):
-        for j in range(1, len(frame2)+1):
-            temp = contour_overlap(frame1.loc[i, "contour"], frame2.loc[j, "contour"], frame1.loc[i, "centroid"], frame2.loc[j, "centroid"], frame1.loc[i, "colony_area"], frame2.loc[j, "colony_area"])
-            if temp ==2:
-                frame2.loc[j,"exclude"] = True
-            elif temp ==3:
-                frame1.loc[j, "exclude"] = True
-                break
-    frame1 = frame1[frame1["exclude"]==False]
-    frame2 = frame2[frame2["exclude"]==False]
-    df = pd.concat([frame1, frame2], axis=0)
-    df.index = range(1,len(df.index)+1)  
     return(df)
 
 import torch    
@@ -270,7 +221,7 @@ def main(args):
     img_map = cut_img(path, file)
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
-    model = SegformerForSemanticSegmentation.from_pretrained(path+"General_Purpose_Colony_ImagerV1")  # Adjust pat
+    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"General_Purpose_Colony_ImagerV1")  # Adjust pat
     model.to(device)
     model.eval()  # Set to evaluation mode
     for z in img_map:
@@ -278,7 +229,7 @@ def main(args):
         cv2.imwrite(img_map[z], mask)
     del mask,z
     p = stitch(img_map)
-    colonies = analyze_colonies(p, min_size, min_circ)
+    colonies = analyze_colonies(p, min_size, min_circ, cv2.imread(path + file))
     if len(colonies) <=0:
     	caption = np.ones((150, 2048, 3), dtype=np.uint8) * 255  # Multiply by 255 to make it white
     	cv2.putText(caption, 'No colonies detected.', (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
@@ -315,9 +266,10 @@ def main(args):
     volumes = [4.189*(x**3) for x in radii]
     colonies['Colony volume'] = volumes
     del radii, volumes
-
-    colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio, sum(colonies['Colony volume'])]
-    colonies = colonies[["Colony Number", 'Colony volume', "colony_area", "centroid", "necrotic_area","percent_necrotic"]]
+    meanpix = sum(colonies['mean_pixel_value'] * colonies['colony_area'])/total_area_light
+    colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio,meanpix, sum(colonies['Colony volume'])]
+    del meanpix
+    colonies = colonies[["Colony Number", 'Colony volume', "colony_area",'mean_pixel_value', "centroid", "necrotic_area","percent_necrotic"]]
     Parameters = pd.DataFrame({"Minimum colony size in pixels":[min_size], "Minimum colony circularity":[min_circ]})
     file = file.split('.')[0]
     with pd.ExcelWriter(path+file+'.xlsx') as writer:
