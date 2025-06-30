@@ -23,7 +23,7 @@ Colony_analyzer_Zstack.py
 Have Python3, and the following libraries: Numpy, Pandas, Tkinter, Opencv, Transformers, PIL, matplotlib. NVIDIA's CUDA is recommended for performance but not strictly necessary for usage.
 Download the three python files above and the model itself.
 
-https://huggingface.co/ReyaLabColumbia/Segformer_Colony_Counter
+https://huggingface.co/ReyaLabColumbia/Segformer_Colony_Counter_GP
 
 Place the model subfolder and all the files in the same folder and it should be ready to run. To run in Windows, you can just left click Colony_analyzer_gui.py. 
 
