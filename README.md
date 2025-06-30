@@ -25,7 +25,7 @@ Download the three python files above and the model itself.
 
 https://huggingface.co/ReyaLabColumbia/Segformer_Colony_Counter
 
-Place the model folder and all the files in the same folder and it should be ready to run. To run in Windows, you can just left click Colony_analyzer_gui.py. 
+Place the model subfolder and all the files in the same folder and it should be ready to run. To run in Windows, you can just left click Colony_analyzer_gui.py. 
 
 To set up a clickable icon in Linux, add the path to the Colony_analyzer_gui.py file into the launch_gui.sh file (instructions inside) and then put the path to the launch_gui.sh file into the launcher.desktop file (instructions inside). Then put the launcher.desktop file on your /desktop and you can run it by clicking.
 
