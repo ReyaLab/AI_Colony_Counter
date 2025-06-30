@@ -1,5 +1,7 @@
 # AI_Colony_Counter
-Uses a segmentation NN to count cell colonies
+Uses a segmentation NN to count cell colonies.
+
+Test the model on our [Huggingface Space!](https://huggingface.co/spaces/ReyaLabColumbia/ColonyCounter)
 
 Fine-tuned on custom data from the following segmentation NN:
 https://huggingface.co/nvidia/segformer-b3-finetuned-cityscapes-1024-1024
