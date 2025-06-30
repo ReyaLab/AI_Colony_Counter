@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Reya Colony counter
+Exec=Insert your path to launch_gui.sh
+Icon=applications-science
+Terminal=True
+Type=Application
+Categories=Science;Education;
