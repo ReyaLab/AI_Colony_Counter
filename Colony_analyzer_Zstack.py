@@ -276,7 +276,7 @@ def main(args):
     colonies = {}
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
-    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"General_Purpose_Colony_ImagerV1")  # Adjust path
+    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"Segformer_Colony_Counter_GP")  # Adjust path
     model.to(device)
     model.eval()  # Set to evaluation mode
     for x in files:
