@@ -317,6 +317,7 @@ def main(args):
     del radii, volumes
 
     colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio, sum(colonies['Colony volume'])]
+    colonies = colonies[["Colony Number", 'Colony volume', "colony_area", "centroid", "necrotic_area","percent_necrotic"]]
     Parameters = pd.DataFrame({"Minimum colony size in pixels":[min_size], "Minimum colony circularity":[min_circ]})
     file = file.split('.')[0]
     with pd.ExcelWriter(path+file+'.xlsx') as writer:

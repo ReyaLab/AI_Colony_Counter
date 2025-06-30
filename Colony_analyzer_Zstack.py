@@ -382,6 +382,7 @@ def main(args):
     del radii, volumes
 
     colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio, None, sum(colonies['Colony volume'])]
+    colonies = colonies[["Colony Number", 'Colony volume', "colony_area", "centroid", "necrotic_area","percent_necrotic"]]
     Parameters = pd.DataFrame({"Minimum colony size in pixels":[min_size], "Minimum colony circularity":[min_circ]})
     with pd.ExcelWriter(path+"Group_analysis_results.xlsx") as writer:
         colonies.to_excel(writer, sheet_name="Colony data", index=False)
