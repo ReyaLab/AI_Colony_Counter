@@ -9,7 +9,6 @@ Created on Thu Mar 20 14:23:27 2025
 import os
 import cv2
 
-# path = '/home/mattc/Documents/ColonyAssaySegformer/'
 # file_list = os.listdir(path)
 # file_list = [x for x in file_list if (x[-4::]==".tif" or x[-5::]==".tiff")]
 def cut_img(path, x):
