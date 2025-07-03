@@ -112,13 +112,8 @@ filename = ""
 global file_list 
 file_list = [""]
 root = tk.Tk()
-root.title("Reya Lab Colony Detector General Purpose AI")
+root.title("Reya Lab Organoid Detector AI")
 root.geometry("900x900")  # Set the window size
-
-try:
-    root.iconbitmap("/home/reya/Desktop/AI_colony_analyzer/")
-except:
-    pass
 
 file_chosen = tk.StringVar(root) 
 # Set the default value of the variable 
@@ -221,13 +216,13 @@ entry_path = tk.Entry(root, width=30, textvariable=entry_path_txt)
 entry_path.grid(row=3, column=1, padx=10, pady=5)
 entry_path_txt.trace_add("write", on_entry_change)
 
-label_size_min = tk.Label(root, text="Colony size minimum cutoff:")
+label_size_min = tk.Label(root, text="Organoid size minimum cutoff:")
 label_size_min.grid(row=0, column=0, padx=10, pady=5, sticky="w")
 entry_size_min = tk.Entry(root, width=30)
 entry_size_min.grid(row=0, column=1, padx=10, pady=5)
 entry_size_min.insert(0, config[0])
 
-label_circularity = tk.Label(root, text="Colony circularity cutoff:")
+label_circularity = tk.Label(root, text="Organoid circularity cutoff:")
 label_circularity.grid(row=2, column=0, padx=10, pady=5, sticky="w")
 entry_circularity = tk.Entry(root, width=30)
 entry_circularity.grid(row=2, column=1, padx=10, pady=5)
@@ -241,7 +236,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
     sys.path.append(path)
     label_hidden.config(text="Initiated analysis.")
     if do_all == False:
-        import Colony_analyzer_AI as MA
+        import Organoid_analyzer_AI as MA
         from PIL import Image, ImageTk
         import cv2
         img = MA.main([path, filn, params[0], params[1], script_path])
@@ -261,7 +256,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         labelimg.photo = img
         labelimg.grid(row=6, column=1)
     elif (do_all == True) and (group_analysis.get() == True):
-        import Colony_analyzer_Zstack as MA
+        import Organoid_analyzer_Zstack as MA
         from PIL import Image, ImageTk
         import cv2
         img = MA.main([path, file_list, params[0], params[1], script_path])
@@ -281,7 +276,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         labelimg.photo = img
         labelimg.grid(row=6, column=1)
     else:
-        import Colony_analyzer_AI as MA
+        import Organoid_analyzer_AI as MA
         from PIL import Image, ImageTk
         import cv2
         for x in file_list:
@@ -346,8 +341,8 @@ btn_confirm = tk.Button(root, text = "Confirm parameters and analyze" , fg = "bl
 btn_confirm.grid(row=5, column=1, padx=10, pady=5)
 on_entry_change()
 
-HoverText(entry_size_min, "Minimum size in pixels to be considered a valid colony.")
-HoverText(entry_circularity, "Minimum circularity cutoff of colony, defined as 4*pi*area/perimeter^2. \nCloser to 1 is more circular.")
+HoverText(entry_size_min, "Minimum size in pixels to be considered a valid organoid.")
+HoverText(entry_circularity, "Minimum circularity cutoff of organoid, defined as 4*pi*area/perimeter^2. \nCloser to 1 is more circular.")
 
 
 root.mainloop()
