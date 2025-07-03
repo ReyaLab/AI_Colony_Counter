@@ -250,7 +250,7 @@ def compare_frames(frame1, frame2):
         for j in range(1, len(frame2)+1):
             if frame2.loc[j,"exclude"] == True:
                 continue
-            temp = contour_overlap(frame1.loc[i, "contour"], frame2.loc[j, "contour"], frame1.loc[i, "centroid"], frame2.loc[j, "centroid"], frame1.loc[i, "colony_area"], frame2.loc[j, "colony_area"])
+            temp = contour_overlap(frame1.loc[i, "contour"], frame2.loc[j, "contour"], frame1.loc[i, "centroid"], frame2.loc[j, "centroid"], frame1.loc[i, "organoid_area"], frame2.loc[j, "organoid_area"])
             if temp ==2:
                 frame2.loc[j,"exclude"] = True
             elif temp ==3:
