@@ -7,7 +7,7 @@
 #conda activate torch_env
 
 #change this to the path to your Colony_analyzer_gui.py file
-python /home/user/.../Colony_analyzer_gui.py
+python /home/user/.../Organoid_analyzer_gui.py
 
 # Debugging: wait if script fails
 if [ $? -ne 0 ]; then
