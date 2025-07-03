@@ -193,7 +193,7 @@ def analyze_colonies(mask, size_cutoff, circ_cutoff, img):
                 nec_list.append(nec)
 
         data.append({
-            "colony_area": colony_area,
+            "organoid_area": colony_area,
             "necrotic_area": necrosis_area,
             "centroid": centroid,
             "percent_necrotic": necrosis_area/colony_area,
@@ -331,7 +331,7 @@ def main(args):
     colonies.index = range(1,len(colonies.index)+1) 
     #nearby is a boolean list of whether a colony has overlapping colonies. If so, labelling positions change
     nearby = [False]*len(colonies)
-    areas = list(colonies["colony_area"])
+    areas = list(colonies["organoid_area"])
     for i in range(len(colonies)): 
         cv2.drawContours(img, [list(colonies["contour"])[i]], -1, (0, 255, 0), 2)
         cv2.drawContours(img, list(colonies['nec_contours'])[i], -1, (0, 0, 255), 2)
@@ -373,25 +373,25 @@ def main(args):
     colonies = colonies.drop('exclude', axis=1)
     img = cv2.copyMakeBorder(img,top=10, bottom=0,left=10,right=0, borderType=cv2.BORDER_CONSTANT,  value=[255, 255, 255]) 
     
-    colonies.insert(loc=0, column="Colony Number", value=[str(x) for x in range(1, len(colonies)+1)])
+    colonies.insert(loc=0, column="organoid_number", value=[str(x) for x in range(1, len(colonies)+1)])
     total_area_dark = sum(colonies['necrotic_area'])
     total_area_light = sum(colonies['colony_area'])
     ratio = total_area_dark/(abs(total_area_light)+1)
-    radii = [np.sqrt(x/3.1415) for x in list(colonies['colony_area'])]
+    radii = [np.sqrt(x/3.1415) for x in list(colonies['organoid_area'])]
     volumes = [4.189*(x**3) for x in radii]
-    colonies['Colony volume'] = volumes
+    colonies['organoid_volume'] = volumes
     del radii, volumes
-    meanpix = sum(colonies['mean_pixel_value'] * colonies['colony_area'])/total_area_light
+    meanpix = sum(colonies['mean_pixel_value'] * colonies['organoid_area'])/total_area_light
     colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio, None, meanpix, sum(colonies['Colony volume'])]
     del meanpix
-    colonies = colonies[["Colony Number", 'Colony volume', "colony_area", 'mean_pixel_value', "centroid", "necrotic_area","percent_necrotic", "source"]]
-    Parameters = pd.DataFrame({"Minimum colony size in pixels":[min_size], "Minimum colony circularity":[min_circ]})
+    colonies = colonies[["organoid_number", 'organoid_volume', "organoid_area", 'mean_pixel_value', "centroid", "necrotic_area","percent_necrotic", "source"]]
+    Parameters = pd.DataFrame({"Minimum organoid size in pixels":[min_size], "Minimum organoid circularity":[min_circ]})
     with pd.ExcelWriter(path+"Group_analysis_results.xlsx") as writer:
-        colonies.to_excel(writer, sheet_name="Colony data", index=False)
+        colonies.to_excel(writer, sheet_name="Organoid data", index=False)
         Parameters.to_excel(writer, sheet_name="Parameters", index=False)
     caption = np.ones((150, 2068, 3), dtype=np.uint8) * 255  # Multiply by 255 to make it white
     cv2.putText(caption, "Total area necrotic: "+str(total_area_dark)+ ", Total area living: "+str(total_area_light)+", Ratio: "+str(ratio), (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
-    cv2.putText(caption, "Total number of colonies: "+str(len(colonies)-1), (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
+    cv2.putText(caption, "Total number of organoids: "+str(len(colonies)-1), (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
 
 
 
