@@ -38,3 +38,11 @@ The following is an example of the output by the program:
 
 [Group_analysis_results3.xlsx](https://github.com/user-attachments/files/20004750/Group_analysis_results3.xlsx)
 
+![Group_analysis_results](https://github.com/user-attachments/assets/3efed9ee-5fd2-4b1d-a49f-d6c5fc57bb23)
+[Group_analysis_results.xlsx](https://github.com/user-attachments/files/21046062/Group_analysis_results.xlsx)
+
+![Group_analysis_results](https://github.com/user-attachments/assets/6e866944-b373-4edb-89d8-89b76127bff8)
+[Group_analysis_results.xlsx](https://github.com/user-attachments/files/21046066/Group_analysis_results.xlsx)
+
+
+
