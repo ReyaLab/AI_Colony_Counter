@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=Reya Organoid counter
+Name=Reya Organoid Counter
 Exec=Insert your path to launch_gui.sh
 Icon=applications-science
 Terminal=True
