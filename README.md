@@ -1,5 +1,5 @@
-# AI_Colony_Counter
-Uses a segmentation NN to count cell colonies.
+# AI_organoid_Counter
+Uses a segmentation NN to count organoids in brightfield images.
 
 Test the model on our [Huggingface Space!](https://huggingface.co/spaces/ReyaLabColumbia/ColonyCounter)
 
@@ -25,13 +25,13 @@ Colony_analyzer_Zstack.py
 Have Python3, and the following libraries: Numpy, Pandas, Tkinter, Opencv, Transformers, PIL, matplotlib. NVIDIA's CUDA is recommended for performance but not strictly necessary for usage.
 Download the three python files above and the model itself.
 
-https://huggingface.co/ReyaLabColumbia/Segformer_Colony_Counter_GP
+https://huggingface.co/ReyaLabColumbia/Segformer_Organoid_Counter_GP
 
-Place the model subfolder and all the files in the same folder and it should be ready to run. To run in Windows, you can just left click Colony_analyzer_gui.py. 
+Place the model subfolder and all the files in the same folder and it should be ready to run. To run in Windows, you can just left click Organoid_analyzer_gui.py. 
 
-To set up a clickable icon in Linux, add the path to the Colony_analyzer_gui.py file into the launch_gui.sh file (instructions inside) and then put the path to the launch_gui.sh file into the launcher.desktop file (instructions inside). Then put the launcher.desktop file on your /desktop and you can run it by clicking.
+To set up a clickable icon in Linux, add the path to the Organoid_analyzer_gui.py file into the launch_gui.sh file (instructions inside) and then put the path to the launch_gui.sh file into the launcher.desktop file (instructions inside). Then put the launcher.desktop file on your /desktop and you can run it by clicking.
 
-In any OS, you can run the program by left clicking inside the folder, open in terminal, and then python Colony_analyzer_gui.py.
+In any OS, you can run the program by left clicking inside the folder, open in terminal, and then python Organoid_analyzer_gui.py.
 
 The following is an example of the output by the program:
 ![Group_analysis_results3](https://github.com/user-attachments/assets/cd5feeca-e5a1-40db-afbc-6f53d5f71f71)
