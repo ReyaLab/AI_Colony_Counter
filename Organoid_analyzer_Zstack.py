@@ -9,9 +9,6 @@ Created on Thu Mar 20 14:23:27 2025
 import os
 import cv2
 
-# path = '/home/mattc/Documents/ColonyAssaySegformer/'
-# file_list = os.listdir(path)
-# file_list = [x for x in file_list if (x[-4::]==".tif" or x[-5::]==".tiff")]
 def cut_img(path, x):
     img_map = {}
     img = cv2.imread(path + x)
@@ -276,7 +273,7 @@ def main(args):
     colonies = {}
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
-    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"Segformer_Colony_Counter_GP")  # Adjust path
+    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"Segformer_Organoid_Counter_GP")  # Adjust path
     model.to(device)
     model.eval()  # Set to evaluation mode
     for x in files:
