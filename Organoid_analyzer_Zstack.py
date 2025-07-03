@@ -273,7 +273,7 @@ def main(args):
     colonies = {}
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
-    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"Segformer_Organoid_Counter_GP")  # Adjust path
+    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"General_Purpose_Colony_ImagerV1")  # Adjust path
     model.to(device)
     model.eval()  # Set to evaluation mode
     for x in files:
@@ -326,8 +326,8 @@ def main(args):
         pass
     
     img = cv2.copyMakeBorder(img,top=0, bottom=10,left=0,right=10, borderType=cv2.BORDER_CONSTANT,  value=[255, 255, 255]) 
-    colonies = colonies.sort_values(by=["organoid_number"], ascending=False)
-    colonies = colonies[colonies["organoid_number"]>= min_size]
+    colonies = colonies.sort_values(by=["organoid_area"], ascending=False)
+    colonies = colonies[colonies["organoid_area"]>= min_size]
     colonies.index = range(1,len(colonies.index)+1) 
     #nearby is a boolean list of whether a colony has overlapping colonies. If so, labelling positions change
     nearby = [False]*len(colonies)
@@ -375,16 +375,16 @@ def main(args):
     
     colonies.insert(loc=0, column="organoid_number", value=[str(x) for x in range(1, len(colonies)+1)])
     total_area_dark = sum(colonies['necrotic_area'])
-    total_area_light = sum(colonies['colony_area'])
+    total_area_light = sum(colonies['organoid_area'])
     ratio = total_area_dark/(abs(total_area_light)+1)
     radii = [np.sqrt(x/3.1415) for x in list(colonies['organoid_area'])]
     volumes = [4.189*(x**3) for x in radii]
     colonies['organoid_volume'] = volumes
     del radii, volumes
     meanpix = sum(colonies['mean_pixel_value'] * colonies['organoid_area'])/total_area_light
-    colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio, None, meanpix, sum(colonies['Colony volume'])]
+    colonies = colonies[["organoid_number", 'organoid_volume', "organoid_area",'mean_pixel_value', "centroid", "necrotic_area","percent_necrotic", "source"]]
+    colonies.loc[len(colonies)+1] = ["Total", sum(colonies['organoid_volume']), total_area_light, meanpix, None, total_area_dark, ratio, None]
     del meanpix
-    colonies = colonies[["organoid_number", 'organoid_volume', "organoid_area", 'mean_pixel_value', "centroid", "necrotic_area","percent_necrotic", "source"]]
     Parameters = pd.DataFrame({"Minimum organoid size in pixels":[min_size], "Minimum organoid circularity":[min_circ]})
     with pd.ExcelWriter(path+"Group_analysis_results.xlsx") as writer:
         colonies.to_excel(writer, sheet_name="Organoid data", index=False)
