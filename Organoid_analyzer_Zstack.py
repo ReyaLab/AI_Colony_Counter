@@ -292,7 +292,7 @@ def main(args):
            colonies = compare_frames(frame, colonies)
     if len(colonies) <=0:
     	caption = np.ones((150, 2048, 3), dtype=np.uint8) * 255  # Multiply by 255 to make it white
-    	cv2.putText(caption, 'No colonies detected.', (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
+    	cv2.putText(caption, 'No organoids detected.', (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
     	img = cv2.imread(path + files[0])
     	cv2.imwrite(path+'Group_analysis_results.png', np.vstack((img, caption)))
     	return(np.vstack((img, caption)))
