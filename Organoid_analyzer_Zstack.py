@@ -326,8 +326,8 @@ def main(args):
         pass
     
     img = cv2.copyMakeBorder(img,top=0, bottom=10,left=0,right=10, borderType=cv2.BORDER_CONSTANT,  value=[255, 255, 255]) 
-    colonies = colonies.sort_values(by=["colony_area"], ascending=False)
-    colonies = colonies[colonies["colony_area"]>= min_size]
+    colonies = colonies.sort_values(by=["organoid_number"], ascending=False)
+    colonies = colonies[colonies["organoid_number"]>= min_size]
     colonies.index = range(1,len(colonies.index)+1) 
     #nearby is a boolean list of whether a colony has overlapping colonies. If so, labelling positions change
     nearby = [False]*len(colonies)
