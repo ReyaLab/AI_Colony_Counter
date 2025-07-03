@@ -220,7 +220,7 @@ def main(args):
     img_map = cut_img(path, file)
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
-    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"Segformer_Colony_Counter_GP")  # Adjust pat
+    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"Segformer_Organoid_Counter_GP")  # Adjust path
     model.to(device)
     model.eval()  # Set to evaluation mode
     for z in img_map:
