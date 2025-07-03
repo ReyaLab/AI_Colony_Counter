@@ -1,7 +1,7 @@
 # AI_Organoid_Counter
 Uses a segmentation NN to count organoids in brightfield images.
 
-Test the model on our [Huggingface Space!](https://huggingface.co/spaces/ReyaLabColumbia/ColonyCounter)
+Test the model on our [Huggingface Space!](https://huggingface.co/spaces/ReyaLabColumbia/OrganoidCounter)
 
 Fine-tuned on custom data from the following segmentation NN:
 https://huggingface.co/nvidia/segformer-b3-finetuned-cityscapes-1024-1024
