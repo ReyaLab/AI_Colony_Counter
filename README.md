@@ -14,9 +14,9 @@ The file ColonyAssaySegformerTern.py was used to download the model and fine-tun
 
 For the actual usage of the program, only the model itself and the following three Python files are needed:
 
-Colony_analyzer_gui.py
-Colony_analyzer_AI.py
-Colony_analyzer_Zstack.py
+Organoid_analyzer_gui.py
+Organoid_analyzer_AI.py
+Organoid_analyzer_Zstack.py
 
 <img width="572" alt="example" src="https://github.com/user-attachments/assets/739217d5-60bf-459b-a548-64d1ed42c316" />
 <img width="572" alt="example2" src="https://github.com/user-attachments/assets/4d8a9ec4-f1f7-4bad-9ebe-16ba7b83b074" />
