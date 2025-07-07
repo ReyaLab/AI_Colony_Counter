@@ -46,4 +46,5 @@ The following is an example of the output by the program:
 
 This is what the working UI looks like.
 
+![Picture1](https://github.com/user-attachments/assets/fb2da9ac-49ab-47df-94f6-da698b3392f7)
 
