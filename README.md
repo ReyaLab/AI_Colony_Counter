@@ -44,5 +44,7 @@ The following is an example of the output by the program:
 ![Group_analysis_results](https://github.com/user-attachments/assets/6e866944-b373-4edb-89d8-89b76127bff8)
 [Group_analysis_results.xlsx](https://github.com/user-attachments/files/21046066/Group_analysis_results.xlsx)
 
+This is what the working UI looks like.
+![image](https://github.com/user-attachments/assets/389b0ff5-63b4-4364-b830-7b0e15a96fd7)
 
 
