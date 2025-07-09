@@ -300,7 +300,7 @@ def run_analysis(filn, path, params = [0,0, False], do_all = False):
         import Organoid_analyzer_Zstack as MA
         from PIL import Image, ImageTk
         import cv2
-        img = MA.main([path, file_list, params[0], params[1], script_path, params[2]])
+        img = MA.main([path, file_list, params[0], params[1], script_path, params[2], int(config[4]), float(config[5])])
         cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         del img
         # Convert numpy array to PIL Image

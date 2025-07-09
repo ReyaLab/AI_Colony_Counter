@@ -243,14 +243,14 @@ def contour_overlap(contour1, contour2, centroid1, centroid2, area1, area2, cent
     else:
         return 1  # Some overlap but not meeting strict criteria
     
-def compare_frames(frame1, frame2):
+def compare_frames(frame1, frame2, centroid_thresh=30, area_thresh = .4):
     for i in range(1, len(frame1)+1):
         if frame1.loc[i,"exclude"] == True:
             continue
         for j in range(1, len(frame2)+1):
             if frame2.loc[j,"exclude"] == True:
                 continue
-            temp = contour_overlap(frame1.loc[i, "contour"], frame2.loc[j, "contour"], frame1.loc[i, "centroid"], frame2.loc[j, "centroid"], frame1.loc[i, "organoid_area"], frame2.loc[j, "organoid_area"])
+            temp = contour_overlap(frame1.loc[i, "contour"], frame2.loc[j, "contour"], frame1.loc[i, "centroid"], frame2.loc[j, "centroid"], frame1.loc[i, "organoid_area"], frame2.loc[j, "organoid_area"], centroid_thresh, area_thresh)
             if temp ==2:
                 frame2.loc[j,"exclude"] = True
             elif temp ==3:
@@ -271,6 +271,8 @@ def main(args):
     min_size = args[2]
     min_circ = args[3]
     do_necrosis = args[5]
+    centroid_dist_cutoff = args[6]
+    colony_overlap_cutoff = args[7]
     colonies = {}
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
@@ -290,7 +292,7 @@ def main(args):
         if isinstance(colonies, dict):
             colonies = frame
         else:
-           colonies = compare_frames(frame, colonies)
+           colonies = compare_frames(frame, colonies, centroid_dist_cutoff, colony_overlap_cutoff)
     if len(colonies) <=0:
     	caption = np.ones((150, 2048, 3), dtype=np.uint8) * 255  # Multiply by 255 to make it white
     	cv2.putText(caption, 'No organoids detected.', (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
