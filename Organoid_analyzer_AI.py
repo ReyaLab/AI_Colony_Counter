@@ -216,11 +216,13 @@ def main(args):
     file = args[1]
     min_size = args[2]
     min_circ = args[3]
+    do_necrosis = args[5]
+    print('passed do necrosis: ' + str(do_necrosis))
     colonies = {}
     img_map = cut_img(path, file)
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
-    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"Segformer_Organoid_Counter_GP")  # Adjust path
+    model = SegformerForSemanticSegmentation.from_pretrained(args[4]+"General_Purpose_Colony_ImagerV1")  # Adjust path
     model.to(device)
     model.eval()  # Set to evaluation mode
     for z in img_map:
@@ -247,7 +249,8 @@ def main(args):
     
     for i in range(len(colonies)): 
         cv2.drawContours(img, [list(colonies["contour"])[i]], -1, (0, 255, 0), 2)
-        cv2.drawContours(img, list(colonies['nec_contours'])[i], -1, (0, 0, 255), 2)
+        if do_necrosis == True:
+            cv2.drawContours(img, list(colonies['nec_contours'])[i], -1, (0, 0, 255), 2)
         coords = list(list(colonies["centroid"])[i])
         if coords[0] > 1950:
             #if a colony is too close to the right edge, makes the label move to left
@@ -269,13 +272,19 @@ def main(args):
     colonies.loc[len(colonies)+1] = ["Total", total_area_light, total_area_dark, None, ratio,meanpix, sum(colonies['organoid_volume'])]
     del meanpix
     colonies = colonies[["organoid_number", 'organoid_volume', "organoid_area",'mean_pixel_value', "centroid", "necrotic_area","percent_necrotic"]]
+    if do_necrosis == False:
+        colonies = colonies.drop('necrotic_area', axis=1)
+        colonies = colonies.drop('percent_necrotic', axis=1)
     Parameters = pd.DataFrame({"Minimum organoid size in pixels":[min_size], "Minimum organoid circularity":[min_circ]})
     file = file.split('.')[0]
     with pd.ExcelWriter(path+file+'.xlsx') as writer:
         colonies.to_excel(writer, sheet_name="Organoid data", index=False)
         Parameters.to_excel(writer, sheet_name="Parameters", index=False)
     caption = np.ones((150, 2068, 3), dtype=np.uint8) * 255  # Multiply by 255 to make it white
-    cv2.putText(caption, "Total area necrotic: "+str(total_area_dark)+ ", Total area living: "+str(total_area_light)+", Ratio: "+str(ratio), (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
+    if do_necrosis == True:
+        cv2.putText(caption, "Total area necrotic: "+str(total_area_dark)+ ", Total area living: "+str(total_area_light)+", Ratio: "+str(ratio), (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
+    else:
+        cv2.putText(caption, "Total area: "+str(total_area_light), (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
     cv2.putText(caption, "Total number of organoids: "+str(len(colonies)-1), (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
 
 

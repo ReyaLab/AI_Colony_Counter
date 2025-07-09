@@ -14,6 +14,36 @@ import tkinter as tk
 import os
 import sys
 
+def find_models(path):
+    """
+    Recursively returns a list of all huggingface models (at any depth) under 'path' 
+    containing at least one .bin and at least one .safetensors file.
+    """
+    final = []
+    try:
+        entries = os.listdir(path)
+    except Exception as e:
+        print(f"Could not access {path}: {e}")
+        return final
+
+    bin_found = any(
+        os.path.isfile(os.path.join(path, f)) and f.lower().endswith('.bin')
+        for f in entries
+    )
+    safetensors_found = any(
+        os.path.isfile(os.path.join(path, f)) and f.lower().endswith('.safetensors')
+        for f in entries
+    )
+    if bin_found and safetensors_found:
+        final.append(path)
+    
+    # Recurse into subdirectories
+    for entry in entries:
+        subdir = os.path.join(path, entry)
+        if os.path.isdir(subdir):
+            final += find_models(subdir)
+    return final
+    
 def find_directories(path):
     """
     Recursively returns a list of all directories (at any depth) under 'path' containing at least one .tif or .tiff file.
@@ -45,7 +75,8 @@ def read_config(path):
         "colony area cutoff in pixels": "1000",
         "circularity cutoff": ".25",
         "path": path,
-        "include necrotic areas": "True",
+        "include necrotic areas": "False",
+        "default model to use":"General_Purpose_Colony_ImagerV1",
         "z-stack centroid distance cutoff in pixels": "30",
         "z-stack colony overlap cutoff": ".4"
     }
@@ -69,6 +100,7 @@ def read_config(path):
             f.write(f"colony area cutoff in pixels: {defaults['colony area cutoff in pixels']}\n")
             f.write(f"circularity cutoff: {defaults['circularity cutoff']}\n")
             f.write(f"path: {defaults['path']}\n")
+            f.write(f"default model to use: {defaults['default model to use']}\n")
             f.write(f"include necrotic areas: {defaults['include necrotic areas']}\n")
             f.write(f"z-stack centroid distance cutoff in pixels: {defaults['z-stack centroid distance cutoff in pixels']}\n")
             f.write(f"z-stack colony overlap cutoff: {defaults['z-stack colony overlap cutoff']}\n")
@@ -228,18 +260,27 @@ entry_circularity = tk.Entry(root, width=30)
 entry_circularity.grid(row=2, column=1, padx=10, pady=5)
 entry_circularity.insert(0, config[1])
 
+def checkbool(s):
+    s = s.strip().lower()
+    if ('true' in s) or ('yes' in s) or ('1' in s):
+        return True
+    else:
+        return False
+do_necrosis = tk.BooleanVar(value=checkbool(config[3]))
+checkbox_necrosis= tk.Checkbutton(root, text='Analyze necrotic areas',variable=do_necrosis, onvalue=True, offvalue=False)
+checkbox_necrosis.grid(row=0, column=2, padx=10, pady=5, sticky="w")
 
 label_hidden = tk.Label(root, text="")
 label_hidden.grid(row=5, column=0, padx=10, pady=5, sticky="w")
 
-def run_analysis(filn, path, params = [0,0], do_all = False):
+def run_analysis(filn, path, params = [0,0, False], do_all = False):
     sys.path.append(path)
     label_hidden.config(text="Initiated analysis.")
     if do_all == False:
         import Organoid_analyzer_AI as MA
         from PIL import Image, ImageTk
         import cv2
-        img = MA.main([path, filn, params[0], params[1], script_path])
+        img = MA.main([path, filn, params[0], params[1], script_path, params[2]])
         cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         del img
         # Convert numpy array to PIL Image
@@ -259,7 +300,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         import Organoid_analyzer_Zstack as MA
         from PIL import Image, ImageTk
         import cv2
-        img = MA.main([path, file_list, params[0], params[1], script_path])
+        img = MA.main([path, file_list, params[0], params[1], script_path, params[2]])
         cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         del img
         # Convert numpy array to PIL Image
@@ -280,7 +321,7 @@ def run_analysis(filn, path, params = [0,0], do_all = False):
         from PIL import Image, ImageTk
         import cv2
         for x in file_list:
-            img = MA.main([path, x, params[0], params[1], script_path])
+            img = MA.main([path, x, params[0], params[1], script_path, params[2]])
             cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             del img
             # Convert numpy array to PIL Image
@@ -320,9 +361,9 @@ def click_conf():
                         continue
                     file_list = [y for y in file_list if ((y[-4::]==".tif") or (y[-4::]==".tiff"))]
                     try:
-                        run_analysis(filename, x, [int(entry_size_min.get()),float(entry_circularity.get())], do_all = checkbox_var.get())
-                        count+=1
-                        label_hidden.config(text="Finished "+str(count) + ' out of ' + str(len(directories)) + ' folders.')
+                    	run_analysis(filename, x, [int(entry_size_min.get()),float(entry_circularity.get()), do_necrosis.get()], do_all = checkbox_var.get())
+                    	count+=1
+                    	label_hidden.config(text="Finished "+str(count) + ' out of ' + str(len(directories)) + ' folders.')
                     except:
                         pass
                 label_hidden.config(text="Finished analysis.") 
@@ -331,7 +372,7 @@ def click_conf():
             file_list = [y for y in file_list if ((y[-4::]==".tif") or (y[-4::]==".tiff"))]
             label_hidden.config(text="")
             filename = file_chosen.get()
-            run_analysis(filename, entry_path.get(), [int(entry_size_min.get()),float(entry_circularity.get())], do_all = checkbox_var.get())
+            run_analysis(filename, entry_path.get(), [int(entry_size_min.get()),float(entry_circularity.get()), do_necrosis.get()], do_all = checkbox_var.get())
             label_hidden.config(text="Finished analysis.")       
     else:
         label_hidden.config(text="Please fix input.")
