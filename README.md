@@ -12,7 +12,7 @@ Xie, E., Wang, W., Yu, Z., Anandkumar, A., Alvarez, J. M., & Luo, P. (2021). Seg
 
 The file ColonyAssaySegformerTern.py was used to download the model and fine-tune it using custom data. FIJI was used to create masks for the training data, and the file Image_Rotator.py was used to rotate, flip, and subdivide the large 1536x2048 images into 512x512 sections. The file Additional_training.py was used to fine-tune the model further. 
 
-Currently only works for 1536x2048 images but check for updates to fix this. The images are cut into 12 sections and fed into the segmentation model as tiles. Now compatible with .tif, .png, and .jpg images.
+Currently only works for 1536x2048 images but check for updates to fix this. The images are cut into 12 sections and fed into the segmentation model as tiles. Compatible with .tif, .png, and .jpg images.
 
 For the actual usage of the program, only the model itself and the following three Python files are needed:
 
