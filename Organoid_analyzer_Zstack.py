@@ -406,4 +406,9 @@ def main(args):
 
 
     cv2.imwrite(path+'Group_analysis_results.png', np.vstack((img, caption)))
-    return(np.vstack((img, caption)))
+    colonies = colonies.drop('organoid_number', axis=1)
+    colonies = colonies.drop('centroid', axis=1)
+    colonies = colonies.drop('source', axis=1)
+    colonies.insert(0, 'Number of organoids', [len(colonies)-1]*len(colonies))
+    return(np.vstack((img, caption)),colonies.iloc[-1:])
+

@@ -288,7 +288,9 @@ def main(args):
     cv2.putText(caption, "Total number of organoids: "+str(len(colonies)-1), (40, 110), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
 
 
-    cv2.imwrite(path+file+'.png', np.vstack((img, caption)))
-
-    return(np.vstack((img, caption)))
+    cv2.imwrite(path+file+'_result.png', np.vstack((img, caption)))
+    colonies = colonies.drop('organoid_number', axis=1)
+    colonies = colonies.drop('centroid', axis=1)
+    colonies.insert(0, 'Number of organoids', [len(colonies)-1]*len(colonies))
+    return(np.vstack((img, caption)),colonies.iloc[-1:])
 
