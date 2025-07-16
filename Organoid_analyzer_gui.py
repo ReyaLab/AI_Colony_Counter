@@ -78,7 +78,7 @@ def read_config(path):
         "circularity cutoff": ".25",
         "path": path,
         "include necrotic areas": "False",
-        "default model to use":"General_Purpose_Colony_ImagerV1",
+        "default model to use":"Segformer_Organoid_Counter_GP",
         "z-stack centroid distance cutoff in pixels": "30",
         "z-stack colony overlap cutoff": ".4"
     }
