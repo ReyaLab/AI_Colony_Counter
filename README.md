@@ -24,8 +24,8 @@ Organoid_analyzer_Zstack.py
 <img width="572" alt="example2" src="https://github.com/user-attachments/assets/4d8a9ec4-f1f7-4bad-9ebe-16ba7b83b074" />
 
 # Installation:
-Have Python3, and the following libraries: Numpy, Pandas, Tkinter, Opencv, Transformers, PIL, matplotlib. NVIDIA's CUDA is recommended for performance but not strictly necessary for usage.
-Download the three python files above and the model itself.
+Have Python3, and the following libraries: Numpy, Pandas, Tkinter, Opencv, Transformers, PIL, matplotlib. NVIDIA's CUDA is recommended for performance but not strictly necessary for usage. We recommend you use a conda environment to avoid conflicts with other projects.
+Download the three python files above and the model itself (place the model.safetensors, config.json, and training_args.bin files in one folder with the model name).
 
 https://huggingface.co/ReyaLabColumbia/Segformer_Organoid_Counter_GP
 
@@ -33,7 +33,7 @@ Place the model subfolder and all the files in the same folder and it should be 
 
 To set up a clickable icon in Linux, add the path to the Organoid_analyzer_gui.py file into the launch_gui.sh file (instructions inside) and then put the path to the launch_gui.sh file into the launcher.desktop file (instructions inside). Then put the launcher.desktop file on your /desktop and you can run it by clicking.
 
-In any OS, you can run the program by left clicking inside the folder, open in terminal, and then python Organoid_analyzer_gui.py.
+In any OS, you can run the program by left clicking inside the folder, open in terminal, and then "python Organoid_analyzer_gui.py".
 
 The following is an example of the output by the program:
 ![Group_analysis_results3](https://github.com/user-attachments/assets/cd5feeca-e5a1-40db-afbc-6f53d5f71f71)
