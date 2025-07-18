@@ -48,5 +48,5 @@ The following is an example of the output by the program:
 
 This is what the working UI looks like.
 
-![Picture1](https://github.com/user-attachments/assets/fb2da9ac-49ab-47df-94f6-da698b3392f7)
+![Picture1](<img width="1447" height="948" alt="Screenshot from 2025-07-17 23-25-35" src="https://github.com/user-attachments/assets/963ac9e8-6ba8-4096-994b-62edb1ad62b6" />)
 
