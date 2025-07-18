@@ -47,8 +47,4 @@ The following is an example of the output by the program:
 [Group_analysis_results.xlsx](https://github.com/user-attachments/files/21046066/Group_analysis_results.xlsx)
 
 This is what the working UI looks like.
-
-![Picture1](<img width="1447" height="948" alt="Screenshot from 2025-07-17 23-25-35" src="https://github.com/user-attachments/assets/963ac9e8-6ba8-4096-994b-62edb1ad62b6" />)
-<img width="1447" height="948" alt="Screenshot from 2025-07-17 23-25-35" src="https://github.com/user-attachments/assets/2951ea47-4834-448d-9ca5-65ad6a3fa49b" />
-
 <img width="1447" height="948" alt="Screenshot from 2025-07-17 23-25-35" src="https://github.com/user-attachments/assets/e865662b-b9df-4c27-a349-fe0a876fc4e6" />
