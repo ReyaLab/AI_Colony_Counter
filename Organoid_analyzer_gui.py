@@ -73,12 +73,17 @@ def find_directories(path):
 def read_config(path):
     # Default values as strings (to return everything as string)
     #written by chat
+    modelpath = find_models(path)
+    if len(modelpath)>0:
+        modelpath = modelpath[0]
+    else:
+        modelpath = path
     defaults = {
         "colony area cutoff in pixels": "1000",
         "circularity cutoff": ".25",
         "path": path,
         "include necrotic areas": "False",
-        "default model to use":"Segformer_Organoid_Counter_GP",
+        "default model to use":modelpath,
         "z-stack centroid distance cutoff in pixels": "30",
         "z-stack colony overlap cutoff": ".4"
     }
@@ -112,6 +117,7 @@ def read_config(path):
         defaults["colony area cutoff in pixels"],
         defaults["circularity cutoff"],
         defaults["path"],
+        defaults["default model to use"],
         defaults["include necrotic areas"],
         defaults["z-stack centroid distance cutoff in pixels"],
         defaults["z-stack colony overlap cutoff"]
@@ -147,7 +153,7 @@ global file_list
 file_list = [""]
 root = tk.Tk()
 root.title("Reya Lab Organoid Detector AI")
-root.geometry("900x900")  # Set the window size
+root.geometry("1400x900")  # Set the window size
 
 file_chosen = tk.StringVar(root) 
 # Set the default value of the variable 
@@ -244,6 +250,7 @@ script_path = script_path.split('/')
 script_path = script_path[:-1]
 script_path = '/'.join(script_path)
 script_path = script_path+'/'
+
 config = read_config(script_path)
 entry_path_txt = tk.StringVar(value=config[2])
 entry_path = tk.Entry(root, width=30, textvariable=entry_path_txt)
@@ -268,18 +275,23 @@ def checkbool(s):
         return True
     else:
         return False
-do_necrosis = tk.BooleanVar(value=checkbool(config[3]))
+modelpath = config[3]
+do_necrosis = tk.BooleanVar(value=checkbool(config[4]))
 checkbox_necrosis= tk.Checkbutton(root, text='Analyze necrotic areas',variable=do_necrosis, onvalue=True, offvalue=False)
 checkbox_necrosis.grid(row=0, column=2, padx=10, pady=5, sticky="w")
-
+model_options = find_models(script_path)
+label_modelpath = tk.Label(root, text="Select model:")
+label_modelpath.grid(row=2, column=2, padx=10, pady=5, sticky="w")
+modelpathvar = tk.StringVar()
+modelpathvar.set(modelpath)
+dropdown_models = tk.OptionMenu(root, modelpathvar, *model_options) 
+dropdown_models.grid(row=2, column=3, padx=10, pady=5, sticky="w")
 label_hidden = tk.Label(root, text="")
 label_hidden.grid(row=5, column=0, padx=10, pady=5, sticky="w")
 import pandas as pd
-def run_analysis(filn, path, filelist = [], params = [0,0, False], do_all = False, multiple_folders = False):
+def run_analysis(filn, path, filelist = [], params = [0,0, False, ""], do_all = False, multiple_folders = False):
     sys.path.append(script_path)
     label_hidden.config(text="Initiated analysis.")
-    print(do_all)
-    print(multiple_folders)
     if multiple_folders == True:
     	directories = find_directories(path)
     	if len(directories) < 1:
@@ -305,7 +317,7 @@ def run_analysis(filn, path, filelist = [], params = [0,0, False], do_all = Fals
             	        results = pd.concat([results, result])
                 except Exception as e:
                     print(f"Error analyzing {x}: {e}")
-            Parameters = pd.DataFrame({"Minimum organoid size in pixels":[params[0]], "Minimum organoid circularity":[params[1]]})
+            Parameters = pd.DataFrame({"Minimum organoid size in pixels":[params[0]], "Minimum organoid circularity":[params[1]], 'Model':[params[3]]})
             with pd.ExcelWriter(path+'summary.xlsx') as writer:
                 results.to_excel(writer, sheet_name="Organoid data", index=False)
                 Parameters.to_excel(writer, sheet_name="Parameters", index=False)
@@ -314,7 +326,7 @@ def run_analysis(filn, path, filelist = [], params = [0,0, False], do_all = Fals
         import Organoid_analyzer_AI as MA
         from PIL import Image, ImageTk
         import cv2
-        img,result = MA.main([path, filn, params[0], params[1], script_path, params[2]])
+        img,result = MA.main([path, filn, params[0], params[1], script_path, params[2], params[3]])
         cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         del img
         # Convert numpy array to PIL Image
@@ -334,7 +346,7 @@ def run_analysis(filn, path, filelist = [], params = [0,0, False], do_all = Fals
         import Organoid_analyzer_Zstack as MA
         from PIL import Image, ImageTk
         import cv2
-        img,result = MA.main([path, filelist, params[0], params[1], script_path, params[2], int(config[4]), float(config[5])])
+        img,result = MA.main([path, filelist, params[0], params[1], script_path, params[2], int(config[5]), float(config[6]),params[3]])
         result.insert(loc=0, column="image", value=path)
         cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         del img
@@ -358,7 +370,7 @@ def run_analysis(filn, path, filelist = [], params = [0,0, False], do_all = Fals
         import cv2
         results = None
         for x in filelist:
-            img,result = MA.main([path, x, params[0], params[1], script_path, params[2]])
+            img,result = MA.main([path, x, params[0], params[1], script_path, params[2], params[3]])
             result.insert(loc=0, column="image", value=path+x)
             cv_image_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             del img
@@ -381,7 +393,7 @@ def run_analysis(filn, path, filelist = [], params = [0,0, False], do_all = Fals
             else:
             	results = pd.concat([results, result])
             if multiple_groups.get() == False:
-            	Parameters = pd.DataFrame({"Minimum organoid size in pixels":[params[0]], "Minimum organoid circularity":[params[1]]})
+            	Parameters = pd.DataFrame({"Minimum organoid size in pixels":[params[0]], "Minimum organoid circularity":[params[1]], 'Model':[params[3]]})
             	with pd.ExcelWriter(path+'summary.xlsx') as writer:
             	    results.to_excel(writer, sheet_name="Organoid data", index=False)
             	    Parameters.to_excel(writer, sheet_name="Parameters", index=False)
@@ -398,9 +410,8 @@ def click_conf():
         file_list = [x for x in file_list if (((x[-4::]==".tif") or (x[-5::]==".tiff") or (x[-4::]==".png") or (x[-4::]==".jpg") or (x[-5::]==".jpeg")) and ('result' not in x))]
         label_hidden.config(text="")
         filename = file_chosen.get()
-        print(checkbox_var.get())
-        print(multiple_groups.get())
-        run_analysis(filename, entry_path.get(), file_list, [int(entry_size_min.get()),float(entry_circularity.get()), do_necrosis.get()], checkbox_var.get(), multiple_groups.get())
+        print(modelpathvar.get())
+        run_analysis(filename, entry_path.get(), file_list, [int(entry_size_min.get()),float(entry_circularity.get()), do_necrosis.get(), modelpathvar.get()], checkbox_var.get(), multiple_groups.get())
     else:
         label_hidden.config(text="Please fix input.")
 
