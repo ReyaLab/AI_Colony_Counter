@@ -6,48 +6,89 @@ Created on Thu Mar 20 14:23:27 2025
 @author: mattc
 """
 
+from PIL import Image
+import numpy as np
 import os
 import cv2
 
-# file_list = os.listdir(path)
-# file_list = [x for x in file_list if (x[-4::]==".tif" or x[-5::]==".tiff")]
-def cut_img(path, x):
+def pad(img_np, tw=2048, th=1536):
+    """
+    Pads a numpy image (grayscale or RGB) to 2048x1536 (width x height) with white pixels.
+    Pads at the bottom and right as needed.
+    """
+    height, width = img_np.shape[:2]
+    pad_bottom = max(0, th - height)
+    pad_right = max(0, tw - width)
+    # Padding: (top, bottom, left, right)
+    if img_np.ndim == 3:
+        # Color image (H, W, 3)
+        border_value = [255, 255, 255]
+    else:
+        # Grayscale image (H, W)
+        border_value = 255
+
+    padded = cv2.copyMakeBorder(
+        img_np, 
+        top=0, bottom=pad_bottom,
+        left=0, right=pad_right,
+        borderType=cv2.BORDER_CONSTANT,
+        value=border_value
+    )
+    return padded
+    
+def cut_img(path, x, patch_size=512):
     img_map = {}
-    img = cv2.imread(path + x)
+    img = Image.fromarray(pad(cv2.imread(path + x)))
     name = x.split(".")[0]
-    i_num = img.shape[0]/512
-    j_num = img.shape[1]/512
+    width, height = img.size
+    i_num = height // patch_size
+    j_num = width // patch_size
     count = 1
     for i in range(int(i_num)):
         for j in range(int(j_num)):
-            img2 = img[(512*i):(512*(i+1)), (512*j):(512*(j+1))]
-            cv2.imwrite(path+name+'_part'+str(count)+'.tif', img2)
+            img2 = img.crop((
+                patch_size * j,
+                patch_size * i,
+                patch_size * (j + 1),
+                patch_size * (i + 1)
+            ))
+            cv2.imwrite(path+name+'_part'+str(count)+'.tif', np.array(img2))
             img_map[count] = path+name+'_part'+str(count)+'.tif'
             count +=1
-    return(img_map)
+    return img_map, i_num, j_num
     
-import numpy as np
 
-def stitch(img_map):
+
+def stitch(img_map, i_num, j_num, min_width=2048, min_height=1536):
+    tiles = []
+    count = 1
     for x in img_map:
         temp = img_map[x]
         img_map[x] = cv2.imread(temp)
         if (img_map[x] is None):
             img_map[x] = cv2.imread(temp, cv2.IMREAD_UNCHANGED)
         os.remove(temp)
-    rows = [
-        np.hstack([img_map[1], img_map[2], img_map[3], img_map[4]]),  # First row (images 0 to 3)
-        np.hstack([img_map[5], img_map[6], img_map[7], img_map[8]]),  # Second row (images 4 to 7)
-        np.hstack([img_map[9], img_map[10], img_map[11], img_map[12]])  # Third row (images 8 to 11)
-    ]
-    
-    # Stack rows vertically
-    return(np.vstack(rows))
+    for i in range(i_num):
+        row_tiles = []
+        for j in range(j_num):
+            tile = np.array(img_map[count])
+            row_tiles.append(tile)
+            count += 1
+        row_img = np.hstack(row_tiles)
+        tiles.append(row_img)
+    stitched = np.vstack(tiles)
 
-#img_map = cut_img(path, file_list[0])
-
-
-from PIL import Image
+    # Pad the stitched image if it's less than min_width/min_height
+    h, w = stitched.shape[:2]
+    pad_h = max(0, min_height - h)
+    pad_w = max(0, min_width - w)
+    if pad_h > 0 or pad_w > 0:
+        # Pad as (top, bottom), (left, right), (channels)
+        if stitched.ndim == 3:
+            stitched = np.pad(stitched, ((0, pad_h), (0, pad_w), (0, 0)), 'constant')
+        else:
+            stitched = np.pad(stitched, ((0, pad_h), (0, pad_w)), 'constant')
+    return stitched
 
 
 
@@ -219,7 +260,7 @@ def main(args):
     do_necrosis = args[5]
     print('passed do necrosis: ' + str(do_necrosis))
     colonies = {}
-    img_map = cut_img(path, file)
+    img_map, i_num, j_num = cut_img(path, file)
     from transformers import SegformerForSemanticSegmentation
     # Load fine-tuned model
     model = SegformerForSemanticSegmentation.from_pretrained(args[6])  # Adjust path
@@ -229,17 +270,24 @@ def main(args):
         mask = eval_img(img_map[z], model)
         cv2.imwrite(img_map[z], mask)
     del mask,z
-    p = stitch(img_map)
+    p = stitch(img_map, i_num, j_num)
     colonies = analyze_colonies(p, min_size, min_circ, cv2.imread(path + file))
     if len(colonies) <=0:
     	caption = np.ones((150, 2048, 3), dtype=np.uint8) * 255  # Multiply by 255 to make it white
     	cv2.putText(caption, 'No organoids detected.', (40, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 3)
-    	img = cv2.imread(path + file)
+    	img = pad(cv2.imread(path + file))
     	file = file.split('.')[0]
-    	cv2.imwrite(path+file+'.png', np.vstack((img, caption)))
-    	return(np.vstack((img, caption)))
+    	cv2.imwrite(path+file+'_result.png', np.vstack((img, caption)))
+    	if do_necrosis:
+    	   colonies = {'Number of organoids':[0],'organoid_volume':[0],"organoid_area":[0],'mean_pixel_value':[None], "necrotic_area":[0],"percent_necrotic":[0]}
+    	   colonies = pd.DataFrame(colonies)
+    	   return(np.vstack((img, caption)), colonies)
+    	else:
+    	   colonies = {'Number of organoids':[0],'organoid_volume':[0],"organoid_area":[0],'mean_pixel_value':[None]}
+    	   colonies = pd.DataFrame(colonies)
+    	   return(np.vstack((img, caption)), colonies)
     
-    img = cv2.imread(path + file)
+    img = pad(cv2.imread(path + file))
     img = cv2.copyMakeBorder(img,top=0, bottom=10,left=0,right=10, borderType=cv2.BORDER_CONSTANT,  value=[255, 255, 255]) 
     
     

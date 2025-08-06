@@ -304,8 +304,6 @@ def run_analysis(filn, path, filelist = [], params = [0,0, False, ""], do_all = 
                 if x[-1] != '/':
                     x = x+ '/'
                 file_list = os.listdir(x)
-                if any('result' in f for f in file_list):
-                    continue
                 file_list = [x for x in file_list if (((x[-4::]==".tif") or (x[-5::]==".tiff") or (x[-4::]==".png") or (x[-4::]==".jpg") or (x[-5::]==".jpeg")) and ('result' not in x))]
                 try:
                     result = run_analysis(filn, x, file_list, params, True, False)
@@ -321,6 +319,7 @@ def run_analysis(filn, path, filelist = [], params = [0,0, False, ""], do_all = 
             with pd.ExcelWriter(path+'summary.xlsx') as writer:
                 results.to_excel(writer, sheet_name="Organoid data", index=False)
                 Parameters.to_excel(writer, sheet_name="Parameters", index=False)
+    	return(0)         
             
     if do_all == False:
         import Organoid_analyzer_AI as MA
@@ -392,13 +391,13 @@ def run_analysis(filn, path, filelist = [], params = [0,0, False, ""], do_all = 
             	results = result
             else:
             	results = pd.concat([results, result])
-            if multiple_groups.get() == False:
-            	Parameters = pd.DataFrame({"Minimum organoid size in pixels":[params[0]], "Minimum organoid circularity":[params[1]], 'Model':[params[3]]})
-            	with pd.ExcelWriter(path+'summary.xlsx') as writer:
-            	    results.to_excel(writer, sheet_name="Organoid data", index=False)
-            	    Parameters.to_excel(writer, sheet_name="Parameters", index=False)
-            else:
-            	return(results)           
+        if multiple_groups.get() == False:
+            Parameters = pd.DataFrame({"Minimum organoid size in pixels":[params[0]], "Minimum organoid circularity":[params[1]], 'Model':[params[3]]})
+            with pd.ExcelWriter(path+'summary.xlsx') as writer:
+            	results.to_excel(writer, sheet_name="Organoid data", index=False)
+            	Parameters.to_excel(writer, sheet_name="Parameters", index=False)
+        else:
+            return(results)           
     label_hidden.config(text="Finished analysis.")
     
 def click_conf():
@@ -410,7 +409,7 @@ def click_conf():
         file_list = [x for x in file_list if (((x[-4::]==".tif") or (x[-5::]==".tiff") or (x[-4::]==".png") or (x[-4::]==".jpg") or (x[-5::]==".jpeg")) and ('result' not in x))]
         label_hidden.config(text="")
         filename = file_chosen.get()
-        print(modelpathvar.get())
+        #print(modelpathvar.get())
         run_analysis(filename, entry_path.get(), file_list, [int(entry_size_min.get()),float(entry_circularity.get()), do_necrosis.get(), modelpathvar.get()], checkbox_var.get(), multiple_groups.get())
     else:
         label_hidden.config(text="Please fix input.")
