@@ -1,7 +1,9 @@
 # AI_Organoid_Counter
 Uses a segmentation NN to count organoids in brightfield images.
 
-Test the model on our [Huggingface Space!](https://huggingface.co/spaces/ReyaLabColumbia/OrganoidCounter)
+Test the web app on our [Huggingface Space!](https://huggingface.co/spaces/ReyaLabColumbia/OrganoidCounter)
+
+Note: The program works the same way as a web app, but the installable program here should run faster, is capable of analyzing entire groups of folders at the click of a button, and you can select any model. Therefore, we recommend installing this github program for heavy use.
 
 Fine-tuned on custom data from the following segmentation NN:
 https://huggingface.co/nvidia/segformer-b3-finetuned-cityscapes-1024-1024
@@ -12,7 +14,7 @@ Xie, E., Wang, W., Yu, Z., Anandkumar, A., Alvarez, J. M., & Luo, P. (2021). Seg
 
 The file ColonyAssaySegformerTern.py was used to download the model and fine-tune it using custom data. FIJI was used to create masks for the training data, and the file Image_Rotator.py was used to rotate, flip, and subdivide the large 1536x2048 images into 512x512 sections. The file Additional_training.py was used to fine-tune the model further. 
 
-Currently only works for 1536x2048 images but check for updates to fix this. The images are cut into 12 sections and fed into the segmentation model as tiles. Compatible with .tif, .png, and .jpg images.
+Works for any image that fits within 1536x2048 pixels. The images are cut into sections and fed into the segmentation model as tiles. Compatible with .tif, .png, and .jpg images.
 
 For the actual usage of the program, only the model itself and the following three Python files are needed:
 
